@@ -1,11 +1,11 @@
 import os
 import platform
 from transformers import AutoTokenizer, AutoModel
-MODEL_PATH = os.environ.get('MODEL_PATH', '/workspace/dujh22/chatglm3/chatglm3')
+MODEL_PATH = os.environ.get('MODEL_PATH', '/workspace/dujh22/models/chatglm3')
 TOKENIZER_PATH = os.environ.get("TOKENIZER_PATH", MODEL_PATH)
 
 tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH, trust_remote_code=True)
-model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="auto").eval()
+model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="cuda:5").eval() # device_map不取auto了
 
 os_name = platform.system()
 clear_command = 'cls' if os_name == 'Windows' else 'clear'

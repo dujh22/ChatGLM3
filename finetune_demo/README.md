@@ -23,10 +23,11 @@ pip install -r requirements.txt
 > 请注意，该结果仅供参考，对于不同的参数，显存占用可能会有所不同。请结合你的硬件情况进行调整。
 
 > 请注意，我们仅仅使用英伟达 Hopper(代表显卡：H100) 和 Ampère(代表显卡:A100) 架构和系列显卡做过测试。如果您使用其他架构的显卡，可能会出现
+>
 > 1. 未知的训练问题 / 显存占用与上述有误差。
 > 2. 架构过低而不支持某些特性。
 > 3. 推理效果问题。
-     > 以上三种情况为社区曾经遇到过的问题，虽然概率极地，如果您遇到了以上问题，可以尝试在社区中解决。
+>    > 以上三种情况为社区曾经遇到过的问题，虽然概率极地，如果您遇到了以上问题，可以尝试在社区中解决。
 
 ## 多轮对话格式
 
@@ -120,15 +121,11 @@ pip install -r requirements.txt
 
 - 关于工具描述的 system prompt 无需手动插入，预处理时会将 `tools` 字段使用 `json.dumps(..., ensure_ascii=False)`
   格式化后插入为首条 system prompt。
-
 - 每种角色可以附带一个 `bool` 类型的 `loss` 字段，表示该字段所预测的内容是否参与 `loss`
   计算。若没有该字段，样例实现中默认对 `system`, `user` 不计算 `loss`，其余角色则计算 `loss`。
-
 - `tool` 并不是 ChatGLM3 中的原生角色，这里的 `tool` 在预处理阶段将被自动转化为一个具有工具调用 `metadata` 的 `assistant`
   角色（默认计算 `loss`）和一个表示工具返回值的 `observation` 角色（不计算 `loss`）。
-
 - 目前暂未实现 `Code interpreter` 的微调任务。
-
 - `system` 角色为可选角色，但若存在 `system` 角色，其必须出现在 `user`
   角色之前，且一个完整的对话数据（无论单轮或者多轮对话）只能出现一次 `system` 角色。
 
@@ -151,39 +148,39 @@ pip install -r requirements.txt
 
 1. `ds_zereo_2 / ds_zereo_3.json`: deepspeed 配置文件。
 2. `lora.yaml / ptuning.yaml / sft.yaml`: 模型不同方式的配置文件，包括模型参数、优化器参数、训练参数等。 部分重要参数解释如下：
-    + data_config 部分
-        + train_file: 训练数据集的文件路径。
-        + val_file: 验证数据集的文件路径。
-        + test_file: 测试数据集的文件路径。
-        + num_proc: 在加载数据时使用的进程数量。
-    + max_input_length: 输入序列的最大长度。
-    + max_output_length: 输出序列的最大长度。
-    + training_args 部分
-        + output_dir: 用于保存模型和其他输出的目录。
-        + max_steps: 训练的最大步数。
-        + per_device_train_batch_size: 每个设备（如 GPU）的训练批次大小。
-        + dataloader_num_workers: 加载数据时使用的工作线程数量。
-        + remove_unused_columns: 是否移除数据中未使用的列。
-        + save_strategy: 模型保存策略（例如，每隔多少步保存一次）。
-        + save_steps: 每隔多少步保存一次模型。
-        + log_level: 日志级别（如 info）。
-        + logging_strategy: 日志记录策略。
-        + logging_steps: 每隔多少步记录一次日志。
-        + per_device_eval_batch_size: 每个设备的评估批次大小。
-        + evaluation_strategy: 评估策略（例如，每隔多少步进行一次评估）。
-        + eval_steps: 每隔多少步进行一次评估。
-        + predict_with_generate: 是否使用生成模式进行预测。
-    + generation_config 部分
-        + max_new_tokens: 生成的最大新 token 数量。
-    + peft_config 部分
-        + peft_type: 使用的参数有效调整类型（如 LORA）。
-        + task_type: 任务类型，这里是因果语言模型（CAUSAL_LM）。
-    + Lora 参数：
-        + r: LoRA 的秩。
-        + lora_alpha: LoRA 的缩放因子。
-        + lora_dropout: 在 LoRA 层使用的 dropout 概率
-    + P-TuningV2 参数：
-        + num_virtual_tokens: 虚拟 token 的数量。
+   + data_config 部分
+     + train_file: 训练数据集的文件路径。
+     + val_file: 验证数据集的文件路径。
+     + test_file: 测试数据集的文件路径。
+     + num_proc: 在加载数据时使用的进程数量。
+   + max_input_length: 输入序列的最大长度。
+   + max_output_length: 输出序列的最大长度。
+   + training_args 部分
+     + output_dir: 用于保存模型和其他输出的目录。
+     + max_steps: 训练的最大步数。
+     + per_device_train_batch_size: 每个设备（如 GPU）的训练批次大小。
+     + dataloader_num_workers: 加载数据时使用的工作线程数量。
+     + remove_unused_columns: 是否移除数据中未使用的列。
+     + save_strategy: 模型保存策略（例如，每隔多少步保存一次）。
+     + save_steps: 每隔多少步保存一次模型。
+     + log_level: 日志级别（如 info）。
+     + logging_strategy: 日志记录策略。
+     + logging_steps: 每隔多少步记录一次日志。
+     + per_device_eval_batch_size: 每个设备的评估批次大小。
+     + evaluation_strategy: 评估策略（例如，每隔多少步进行一次评估）。
+     + eval_steps: 每隔多少步进行一次评估。
+     + predict_with_generate: 是否使用生成模式进行预测。
+   + generation_config 部分
+     + max_new_tokens: 生成的最大新 token 数量。
+   + peft_config 部分
+     + peft_type: 使用的参数有效调整类型（如 LORA）。
+     + task_type: 任务类型，这里是因果语言模型（CAUSAL_LM）。
+   + Lora 参数：
+     + r: LoRA 的秩。
+     + lora_alpha: LoRA 的缩放因子。
+     + lora_dropout: 在 LoRA 层使用的 dropout 概率
+   + P-TuningV2 参数：
+     + num_virtual_tokens: 虚拟 token 的数量。
 
 ## 开始微调
 
@@ -209,11 +206,11 @@ python finetune_hf.py  data/AdvertiseGen/  THUDM/chatglm3-6b  configs/lora.yaml
 2. `XX`, 断点号数字 例 `600` 则从序号600 Checkpoint开始训练
 
 例如，这就是一个从最后一个保存点继续微调的示例代码
+
 ```angular2html
 cd finetune_demo
 python finetune_hf.py  data/AdvertiseGen/  THUDM/chatglm3-6b  configs/lora.yaml yes
 ```
-
 
 ## 使用微调后的模型
 
@@ -231,10 +228,10 @@ python inference_hf.py your_finetune_path --prompt your prompt
 
 您可以在任何一个 demo 内使用我们的 `lora` 和 全参微调的模型。这需要你自己按照以下教程进行修改代码。
 
-1. 使用`finetune_demo/inference_hf.py`中读入模型的方式替换 demo 中读入模型的方式。
+1. 使用 `finetune_demo/inference_hf.py`中读入模型的方式替换 demo 中读入模型的方式。
 
-> 请注意，对于 LORA 和 P-TuningV2 我们没有合并训练后的模型，而是在`adapter_config.json`
-> 中记录了微调型的路径，如果你的原始模型位置发生更改，则你应该修改`adapter_config.json`中`base_model_name_or_path`的路径。
+> 请注意，对于 LORA 和 P-TuningV2 我们没有合并训练后的模型，而是在 `adapter_config.json`
+> 中记录了微调型的路径，如果你的原始模型位置发生更改，则你应该修改 `adapter_config.json`中 `base_model_name_or_path`的路径。
 
 ```python
 def load_model_and_tokenizer(
@@ -257,8 +254,8 @@ def load_model_and_tokenizer(
     return model, tokenizer
 ```
 
-2. 读取微调的模型，请注意，你应该使用微调模型的位置，例如，若你的模型位置为`/path/to/finetune_adapter_model`
-   ，原始模型地址为`path/to/base_model`,则你应该使用`/path/to/finetune_adapter_model`作为`model_dir`。
+2. 读取微调的模型，请注意，你应该使用微调模型的位置，例如，若你的模型位置为 `/path/to/finetune_adapter_model`
+   ，原始模型地址为 `path/to/base_model`,则你应该使用 `/path/to/finetune_adapter_model`作为 `model_dir`。
 3. 完成上述操作后，就能正常使用微调的模型了，其他的调用方式没有变化。
 
 ### 提示
@@ -294,30 +291,31 @@ Check >> >> >> >> >> >> >
 Check
 ```
 
-字样，每行依次表示一个 detokenized string, token_id 和 target_id。其中，`target_id`为`token_id`在模型词表中的索引，`-100`表示该
+字样，每行依次表示一个 detokenized string, token_id 和 target_id。其中，`target_id`为 `token_id`在模型词表中的索引，`-100`表示该
 token 不参与 `loss` 计算。
 
-2. `_prepare_model_for_training` 的作用是遍历模型的所有可训练参数，并确保它们的数据类型为`torch.float32`。
+2. `_prepare_model_for_training` 的作用是遍历模型的所有可训练参数，并确保它们的数据类型为 `torch.float32`。
    这在某些情况下是必要的，因为混合精度训练或其他操作可能会更改模型参数的数据类型。该代码默打开，可以注释，但是如果使用
    `half` 格式训练出现问题，可以切换回这个代码，显存可能增加。
 3. 在我们的[Huggingface模型代码](https://huggingface.co/THUDM/chatglm3-6b/blob/main/modeling_chatglm.py)中，有以下内容：
-    ```python
+   ```python
    if self.gradient_checkpointing and self.training:
-                layer_ret = torch.utils.checkpoint.checkpoint(
-                    layer,
-                    hidden_states,
-                    attention_mask,
-                    rotary_pos_emb,
-                    kv_caches[index],
-                    use_cache,
-                    use_reentrant=False
-                )
+               layer_ret = torch.utils.checkpoint.checkpoint(
+                   layer,
+                   hidden_states,
+                   attention_mask,
+                   rotary_pos_emb,
+                   kv_caches[index],
+                   use_cache,
+                   use_reentrant=False
+               )
    ```
-   这可能导致训练的时候显存增加，因此，如果您的显存不足，可以尝试将``` use_reentrant``` 修改为`True`。
+
+   这可能导致训练的时候显存增加，因此，如果您的显存不足，可以尝试将 `` use_reentrant`` 修改为 `True`。
 4. 微调后的模型可以使用任何支持 `peft` 载入的模型加速框架，在这里，我们没有提供demo。
 5. 本仓库的微调数据集格式与 API 微调数据集格式有一定区别
-    + ZhipuAI API 微调数据集中的 `messages` 字段在本仓库为 `conversation` 字段。
-    + ZhipuAI API 中的微调文件为 `jsonl`, 在本仓库，需要简单的将文件名改为 `json`。
+   + ZhipuAI API 微调数据集中的 `messages` 字段在本仓库为 `conversation` 字段。
+   + ZhipuAI API 中的微调文件为 `jsonl`, 在本仓库，需要简单的将文件名改为 `json`。
 
 ## 参考文献
 

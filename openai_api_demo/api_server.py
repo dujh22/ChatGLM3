@@ -1,27 +1,26 @@
 """
-This script implements an API for the ChatGLM3-6B model,
-formatted similarly to OpenAI's API (https://platform.openai.com/docs/api-reference/chat).
-It's designed to be run as a web server using FastAPI and uvicorn,
-making the ChatGLM3-6B model accessible through OpenAI Client.
+此脚本实现了 ChatGLM3-6B 模型的 API、
+格式类似于 OpenAI 的 API (https://platform.openai.com/docs/api-reference/chat)。
+它可以使用 FastAPI 和 uvicorn 作为网络服务器运行、
+使 ChatGLM3-6B 模型可通过 OpenAI 客户端访问。
 
-Key Components and Features:
-- Model and Tokenizer Setup: Configures the model and tokenizer paths and loads them.
-- FastAPI Configuration: Sets up a FastAPI application with CORS middleware for handling cross-origin requests.
-- API Endpoints:
-  - "/v1/models": Lists the available models, specifically ChatGLM3-6B.
-  - "/v1/chat/completions": Processes chat completion requests with options for streaming and regular responses.
-  - "/v1/embeddings": Processes Embedding request of a list of text inputs.
-- Token Limit Caution: In the OpenAI API, 'max_tokens' is equivalent to HuggingFace's 'max_new_tokens', not 'max_length'.
-For instance, setting 'max_tokens' to 8192 for a 6b model would result in an error due to the model's inability to output
-that many tokens after accounting for the history and prompt tokens.
-- Stream Handling and Custom Functions: Manages streaming responses and custom function calls within chat responses.
-- Pydantic Models: Defines structured models for requests and responses, enhancing API documentation and type safety.
-- Main Execution: Initializes the model and tokenizer, and starts the FastAPI app on the designated host and port.
+主要组件和功能：
+- Model and Tokenizer Setup模型和标记符设置： 配置模型和标记符路径并加载它们.
+- FastAPI ConfigurationFastAPI 配置： 设置带有 CORS 中间件的 FastAPI 应用程序，以处理跨源请求。
+- API Endpoints端点:
+  - "/v1/models": 列出可用的模型，特别是 ChatGLM3-6B。
+  - "/v1/chat/completions": 处理聊天完成请求，提供流式和常规回复选项。
+  - "/v1/embeddings": 处理文本输入列表的嵌入请求。
+- Token Limit Caution令牌限制注意事项： 在 OpenAI API 中，"max_tokens "等同于 HuggingFace 的 "max_new_tokens"，而不是 "max_length"。
+例如，如果将 6b 模型的 "max_tokens "设置为 8192，就会导致错误，因为模型无法在计算那么多的令牌。
+- Stream Handling and Custom Functions流处理和自定义函数： 管理聊天回复中的流回复和自定义函数调用
+- Pydantic Models: 为请求和响应定义结构化模型，增强 API 文档和类型安全性。
+- Main Execution: 初始化模型和标记器，并在指定主机和端口上启动 FastAPI 应用程序。
 
-Note:
-    This script doesn't include the setup for special tokens or multi-GPU support by default.
-    Users need to configure their special tokens and can enable multi-GPU support as per the provided instructions.
-    Embedding Models only support in One GPU.
+注意
+    本脚本默认不包含特殊令牌或多 GPU 支持设置。
+    用户需要配置自己的特殊令牌，并根据提供的说明启用多 GPU 支持。
+    嵌入模型仅支持单 GPU。
 
 """
 
@@ -48,7 +47,8 @@ from sse_starlette.sse import EventSourceResponse
 EventSourceResponse.DEFAULT_PING_INTERVAL = 1000
 
 # set LLM path
-MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
+# MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/chatglm3-6b')
+MODEL_PATH = os.environ.get('MODEL_PATH', '/workspace/dujh22/models/chatglm3')
 TOKENIZER_PATH = os.environ.get("TOKENIZER_PATH", MODEL_PATH)
 
 # set Embedding Model path
@@ -523,7 +523,7 @@ def contains_custom_function(value: str) -> bool:
 if __name__ == "__main__":
     # Load LLM
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH, trust_remote_code=True)
-    model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="auto").eval()
+    model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device_map="cuda:5").eval()
 
     # load Embedding
     embedding_model = SentenceTransformer(EMBEDDING_PATH, device="cuda")
